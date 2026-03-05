@@ -1,5 +1,7 @@
 import { generateCalendarDays } from "@/domain/calendar/generateCalendarDays"
-import { CalendarContainer, DayCell } from "./CalendarGrid.styles"
+import { WEEK_DAYS } from "@/domain/date/week.constants"
+import { getDayNumber } from "@/domain/date/format.utils"
+import { CalendarContainer, DayCell, WeekHeaderCell } from "./CalendarGrid.styles"
 
 interface Props {
     year: number
@@ -11,9 +13,13 @@ export function CalendarGrid({ year, month }: Props) {
 
     return (
         <CalendarContainer>
+            {WEEK_DAYS.map((day) => (
+                <WeekHeaderCell key={day}>{day}</WeekHeaderCell>
+            ))}
+
             {days.map((day) => (
                 <DayCell key={day.date} $isCurrentMonth={day.isCurrentMonth}>
-                    {day.date}
+                    {getDayNumber(day.date)}
                 </DayCell>
             ))}
         </CalendarContainer>
