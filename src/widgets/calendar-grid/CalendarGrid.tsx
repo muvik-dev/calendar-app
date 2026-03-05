@@ -1,10 +1,9 @@
 import { generateCalendarDays } from "@/domain/calendar/generateCalendarDays"
 import { WEEK_DAYS } from "@/domain/date/week.constants"
-import { getDayNumber } from "@/domain/date/format.utils"
-import { CalendarContainer, DayCell, WeekHeaderCell } from "./CalendarGrid.styles"
+import { CalendarContainer, WeekHeaderCell } from "./CalendarGrid.styles"
 import { useTaskStore } from "@/store/task/useTaskStore"
 import type { Task } from "@/domain/task/task.types"
-import { TaskItem } from "@/components/task/TaskItem"
+import { DayCell } from "./DayCell"
 
 interface Props {
     year: number
@@ -58,7 +57,7 @@ function groupTasksByDate(tasks: Task[]) {
 export function CalendarGrid({ year, month }: Props) {
     const days = generateCalendarDays(year, month)
 
-    const { tasks } = useTaskStore(initialTasks)
+    const { tasks, dispatch } = useTaskStore(initialTasks)
 
     const tasksByDate = groupTasksByDate(tasks)
 
@@ -69,13 +68,13 @@ export function CalendarGrid({ year, month }: Props) {
             ))}
 
             {days.map((day) => (
-                <DayCell key={day.date} $isCurrentMonth={day.isCurrentMonth}>
-                    <div>{getDayNumber(day.date)}</div>
-
-                    {tasksByDate.get(day.date)?.map((task) => (
-                        <TaskItem key={task.id} task={task} />
-                    ))}
-                </DayCell>
+                <DayCell
+                    key={day.date}
+                    date={day.date}
+                    isCurrentMonth={day.isCurrentMonth}
+                    tasks={tasksByDate.get(day.date) ?? []}
+                    dispatch={dispatch}
+                />
             ))}
         </CalendarContainer>
     )
