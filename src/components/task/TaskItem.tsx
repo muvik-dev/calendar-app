@@ -32,7 +32,12 @@ export function TaskItem({ task, dispatch }: Props) {
     }
 
     return (
-        <Container>
+
+        <Container
+            draggable
+            onDragStart={(e) => {
+                e.dataTransfer.setData("taskId", task.id)
+            }}>
             {isEditing ? (
                 <Input
                     autoFocus
