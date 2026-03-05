@@ -1,5 +1,16 @@
 import type { Task } from "@/domain/task/task.types"
-import type { TaskAction } from './task.actions'
+import type { TaskAction } from "./task.actions"
+
+function normalizeOrder(tasks: Task[], date: string): Task[] {
+    const sameDay = tasks
+        .filter((t) => t.date === date)
+        .sort((a, b) => a.order - b.order)
+
+    return sameDay.map((task, index) => ({
+        ...task,
+        order: index,
+    }))
+}
 
 export function taskReducer(state: Task[], action: TaskAction): Task[] {
     switch (action.type) {
@@ -20,28 +31,54 @@ export function taskReducer(state: Task[], action: TaskAction): Task[] {
         case "DELETE_TASK":
             return state.filter((t) => t.id !== action.payload.id)
 
-        case "MOVE_TASK":
-            return state.map((t) =>
-                t.id === action.payload.id
+        case "REORDER_TASK": {
+            const task = state.find((t) => t.id === action.payload.id)
+            if (!task) return state
+
+            const updated = state.map((t) =>
+                t.id === task.id
+                    ? { ...t, order: action.payload.newOrder }
+                    : t
+            )
+
+            const normalized = normalizeOrder(updated, task.date)
+
+            return [
+                ...updated.filter((t) => t.date !== task.date),
+                ...normalized,
+            ]
+        }
+
+        case "MOVE_TASK": {
+            const task = state.find((t) => t.id === action.payload.id)
+            if (!task) return state
+
+            const updated = state.map((t) =>
+                t.id === task.id
                     ? {
                         ...t,
                         date: action.payload.toDate,
                         order: action.payload.newOrder,
-                        updatedAt: Date.now(),
                     }
                     : t
             )
 
-        case "REORDER_TASK":
-            return state.map((t) =>
-                t.id === action.payload.id
-                    ? {
-                        ...t,
-                        order: action.payload.newOrder,
-                        updatedAt: Date.now(),
-                    }
-                    : t
+            const fromNormalized = normalizeOrder(updated, task.date)
+            const toNormalized = normalizeOrder(
+                updated,
+                action.payload.toDate
             )
+
+            return [
+                ...updated.filter(
+                    (t) =>
+                        t.date !== task.date &&
+                        t.date !== action.payload.toDate
+                ),
+                ...fromNormalized,
+                ...toNormalized,
+            ]
+        }
 
         default:
             return state
