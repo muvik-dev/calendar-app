@@ -42,7 +42,11 @@ export function DayCell({
             <Header>{getDayNumber(date)}</Header>
 
             {tasks.map((task) => (
-                <TaskItem key={task.id} task={task} />
+                <TaskItem
+                    key={task.id}
+                    task={task}
+                    dispatch={dispatch}
+                />
             ))}
 
             <Input
