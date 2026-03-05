@@ -1,11 +1,10 @@
-import type {DateKey} from "../types/date"
-
-export type TaskId = string
+import type { DateKey } from "@/domain/types/date"
 
 export interface Task {
-    id: TaskId
+    id: string
     title: string
     date: DateKey
     order: number
-    createdAt: string
+    createdAt: number
+    updatedAt: number
 }

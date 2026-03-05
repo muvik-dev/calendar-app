@@ -2,14 +2,65 @@ import { generateCalendarDays } from "@/domain/calendar/generateCalendarDays"
 import { WEEK_DAYS } from "@/domain/date/week.constants"
 import { getDayNumber } from "@/domain/date/format.utils"
 import { CalendarContainer, DayCell, WeekHeaderCell } from "./CalendarGrid.styles"
+import { useTaskStore } from "@/store/task/useTaskStore"
+import type { Task } from "@/domain/task/task.types"
+import { TaskItem } from "@/components/task/TaskItem"
 
 interface Props {
     year: number
     month: number
 }
 
+const initialTasks: Task[] = [
+    {
+        id: "1",
+        title: "Design review",
+        date: "2026-03-05",
+        order: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+    },
+    {
+        id: "2",
+        title: "Team meeting",
+        date: "2026-03-05",
+        order: 1,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+    },
+    {
+        id: "3",
+        title: "Write documentation",
+        date: "2026-03-12",
+        order: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+    },
+]
+
+function groupTasksByDate(tasks: Task[]) {
+    const map = new Map<string, Task[]>()
+
+    for (const task of tasks) {
+        if (!map.has(task.date)) {
+            map.set(task.date, [])
+        }
+        map.get(task.date)!.push(task)
+    }
+
+    for (const [, value] of map) {
+        value.sort((a, b) => a.order - b.order)
+    }
+
+    return map
+}
+
 export function CalendarGrid({ year, month }: Props) {
     const days = generateCalendarDays(year, month)
+
+    const { tasks } = useTaskStore(initialTasks)
+
+    const tasksByDate = groupTasksByDate(tasks)
 
     return (
         <CalendarContainer>
@@ -19,7 +70,11 @@ export function CalendarGrid({ year, month }: Props) {
 
             {days.map((day) => (
                 <DayCell key={day.date} $isCurrentMonth={day.isCurrentMonth}>
-                    {getDayNumber(day.date)}
+                    <div>{getDayNumber(day.date)}</div>
+
+                    {tasksByDate.get(day.date)?.map((task) => (
+                        <TaskItem key={task.id} task={task} />
+                    ))}
                 </DayCell>
             ))}
         </CalendarContainer>

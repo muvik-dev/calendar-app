@@ -17,13 +17,12 @@ export const WeekHeaderCell = styled.div`
 `
 
 export const DayCell = styled.div<{ $isCurrentMonth: boolean }>`
-  border: 1px solid #ddd;
-  padding: 6px;
-  font-size: 14px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
+    border: 1px solid #ddd;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 
-  background-color: ${({ $isCurrentMonth }) =>
-    $isCurrentMonth ? "#ffffff" : "#f5f5f5"};
+    background-color: ${({ $isCurrentMonth }) =>
+            $isCurrentMonth ? "#ffffff" : "#f5f5f5"};
 `
