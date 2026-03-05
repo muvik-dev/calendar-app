@@ -1,5 +1,7 @@
+import { CalendarGrid } from "@/widgets/calendar-grid/CalendarGrid"
+
 function App() {
-  return <div>Calendar</div>
+  return <CalendarGrid year={2026} month={2} />
 
 }
 
