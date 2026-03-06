@@ -4,6 +4,7 @@ import { CalendarContainer, WeekHeaderCell } from "./CalendarGrid.styles"
 import { useTaskStore } from "@/store/task/useTaskStore"
 import type { Task } from "@/domain/task/task.types"
 import { DayCell } from "./DayCell"
+import {useState} from "react";
 
 interface Props {
     year: number
@@ -58,6 +59,7 @@ export function CalendarGrid({ year, month }: Props) {
     const days = generateCalendarDays(year, month)
 
     const { tasks, dispatch } = useTaskStore(initialTasks)
+    const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
 
     const tasksByDate = groupTasksByDate(tasks)
 
@@ -74,6 +76,8 @@ export function CalendarGrid({ year, month }: Props) {
                     isCurrentMonth={day.isCurrentMonth}
                     tasks={tasksByDate.get(day.date) ?? []}
                     dispatch={dispatch}
+                    draggedTaskId={draggedTaskId}
+                    setDraggedTaskId={setDraggedTaskId}
                 />
             ))}
         </CalendarContainer>

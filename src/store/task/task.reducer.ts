@@ -1,17 +1,6 @@
 import type { Task } from "@/domain/task/task.types"
 import type { TaskAction } from "./task.actions"
 
-function normalizeOrder(tasks: Task[], date: string): Task[] {
-    const sameDay = tasks
-        .filter((t) => t.date === date)
-        .sort((a, b) => a.order - b.order)
-
-    return sameDay.map((task, index) => ({
-        ...task,
-        order: index,
-    }))
-}
-
 export function taskReducer(state: Task[], action: TaskAction): Task[] {
     switch (action.type) {
         case "ADD_TASK":
@@ -57,31 +46,39 @@ export function taskReducer(state: Task[], action: TaskAction): Task[] {
             const task = state.find((t) => t.id === action.payload.id)
             if (!task) return state
 
-            const updated = state.map((t) =>
-                t.id === task.id
-                    ? {
-                        ...t,
-                        date: action.payload.toDate,
-                        order: action.payload.newOrder,
-                    }
-                    : t
+            const fromDate = task.date
+            const toDate = action.payload.toDate
+
+            const fromDayTasks = state
+                .filter((t) => t.date === fromDate && t.id !== task.id)
+                .sort((a, b) => a.order - b.order)
+
+            const toDayTasks = state
+                .filter((t) => t.date === toDate)
+                .sort((a, b) => a.order - b.order)
+
+            const otherTasks = state.filter(
+                (t) => t.date !== fromDate && t.date !== toDate
             )
 
-            const fromNormalized = normalizeOrder(updated, task.date)
-            const toNormalized = normalizeOrder(
-                updated,
-                action.payload.toDate
-            )
+            const movedTask: Task = {
+                ...task,
+                date: toDate,
+            }
 
-            return [
-                ...updated.filter(
-                    (t) =>
-                        t.date !== task.date &&
-                        t.date !== action.payload.toDate
-                ),
-                ...fromNormalized,
-                ...toNormalized,
-            ]
+            toDayTasks.splice(action.payload.newOrder, 0, movedTask)
+
+            const normalizedFrom = fromDayTasks.map((t, index) => ({
+                ...t,
+                order: index,
+            }))
+
+            const normalizedTo = toDayTasks.map((t, index) => ({
+                ...t,
+                order: index,
+            }))
+
+            return [...otherTasks, ...normalizedFrom, ...normalizedTo]
         }
 
         default:

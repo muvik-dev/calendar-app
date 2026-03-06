@@ -11,16 +11,20 @@ interface Props {
     isCurrentMonth: boolean
     tasks: Task[]
     dispatch: React.Dispatch<TaskAction>
+
+    draggedTaskId: string | null
+    setDraggedTaskId: (id: string | null) => void
 }
 
 export function DayCell({
-                            date,
-                            isCurrentMonth,
-                            tasks,
-                            dispatch,
-                        }: Props) {
+    date,
+    isCurrentMonth,
+    tasks,
+    dispatch,
+    draggedTaskId,
+    setDraggedTaskId,
+}: Props) {
     const [title, setTitle] = useState("")
-    const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
 
     function handleAddTask() {
         if (!title.trim()) return
@@ -38,10 +42,68 @@ export function DayCell({
         setTitle("")
     }
 
+    function handleDropOnDayEnd() {
+        if (!draggedTaskId) return
+
+        const isSameDay = tasks.some((t) => t.id === draggedTaskId)
+
+        if (isSameDay) {
+            dispatch({
+                type: "REORDER_TASK",
+                payload: {
+                    id: draggedTaskId,
+                    newOrder: tasks.length - 1,
+                },
+            })
+        } else {
+            dispatch({
+                type: "MOVE_TASK",
+                payload: {
+                    id: draggedTaskId,
+                    toDate: date,
+                    newOrder: tasks.length,
+                },
+            })
+        }
+
+        setDraggedTaskId(null)
+    }
+
+    function handleDropOnTask(targetOrder: number) {
+        if (!draggedTaskId) return
+
+        const draggedTask = tasks.find((t) => t.id === draggedTaskId)
+
+        if (draggedTask && draggedTask.date === date) {
+            dispatch({
+                type: "REORDER_TASK",
+                payload: {
+                    id: draggedTaskId,
+                    newOrder: targetOrder,
+                },
+            })
+        } else {
+            dispatch({
+                type: "MOVE_TASK",
+                payload: {
+                    id: draggedTaskId,
+                    toDate: date,
+                    newOrder: targetOrder,
+                },
+            })
+        }
+
+        setDraggedTaskId(null)
+    }
+
     return (
         <Container
             $isCurrentMonth={isCurrentMonth}
             onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+                e.preventDefault()
+                handleDropOnDayEnd()
+            }}
         >
             <Header>{getDayNumber(date)}</Header>
 
@@ -51,17 +113,7 @@ export function DayCell({
                     task={task}
                     dispatch={dispatch}
                     onDragStart={() => setDraggedTaskId(task.id)}
-                    onDropOnTask={() => {
-                        if (!draggedTaskId) return
-
-                        dispatch({
-                            type: "REORDER_TASK",
-                            payload: {
-                                id: draggedTaskId,
-                                newOrder: task.order,
-                            },
-                        })
-                    }}
+                    onDropOnTask={() => handleDropOnTask(task.order)}
                 />
             ))}
 

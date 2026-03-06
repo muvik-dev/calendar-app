@@ -46,6 +46,7 @@ export function TaskItem({
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
                 e.preventDefault()
+                e.stopPropagation()
                 onDropOnTask()
             }}>
             {isEditing ? (
