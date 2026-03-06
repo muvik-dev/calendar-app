@@ -38,28 +38,11 @@ export function DayCell({
         setTitle("")
     }
 
-    function handleDrop(
-        e: React.DragEvent<HTMLDivElement>
-    ) {
-        e.preventDefault()
-
-        const draggedTaskId = e.dataTransfer.getData("taskId")
-        if (!draggedTaskId) return
-
-        dispatch({
-            type: "REORDER_TASK",
-            payload: {
-                id: draggedTaskId,
-                newOrder: tasks.length,
-            },
-        })
-    }
-
     return (
         <Container
-                   $isCurrentMonth={isCurrentMonth}
-                   onDragOver={(e) => e.preventDefault()}
-                   onDrop={handleDrop}>
+            $isCurrentMonth={isCurrentMonth}
+            onDragOver={(e) => e.preventDefault()}
+        >
             <Header>{getDayNumber(date)}</Header>
 
             {tasks.map((task) => (
@@ -97,28 +80,28 @@ export function DayCell({
 }
 
 const Container = styled.div<{ $isCurrentMonth: boolean }>`
-  border: 1px solid #ddd;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+    border: 1px solid #ddd;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 
-  background-color: ${({ $isCurrentMonth }) =>
-    $isCurrentMonth ? "#ffffff" : "#f5f5f5"};
+    background-color: ${({ $isCurrentMonth }) =>
+            $isCurrentMonth ? "#ffffff" : "#f5f5f5"};
 `
 
 const Header = styled.div`
-  font-size: 14px;
-  font-weight: 600;
+    font-size: 14px;
+    font-weight: 600;
 `
 
 const Input = styled.input`
-  border: none;
-  border-top: 1px solid #eee;
-  padding: 4px;
-  font-size: 12px;
+    border: none;
+    border-top: 1px solid #eee;
+    padding: 4px;
+    font-size: 12px;
 
-  &:focus {
-    outline: none;
-  }
+    &:focus {
+        outline: none;
+    }
 `
