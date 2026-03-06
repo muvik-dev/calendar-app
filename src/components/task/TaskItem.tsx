@@ -6,9 +6,16 @@ import type { TaskAction } from "@/store/task/task.actions"
 interface Props {
     task: Task
     dispatch: React.Dispatch<TaskAction>
+    onDragStart: () => void
+    onDropOnTask: () => void
 }
 
-export function TaskItem({ task, dispatch }: Props) {
+export function TaskItem({
+                             task,
+                             dispatch,
+                             onDragStart,
+                             onDropOnTask,
+                         }: Props) {
     const [isEditing, setIsEditing] = useState(false)
     const [value, setValue] = useState(task.title)
 
@@ -35,8 +42,11 @@ export function TaskItem({ task, dispatch }: Props) {
 
         <Container
             draggable
-            onDragStart={(e) => {
-                e.dataTransfer.setData("taskId", task.id)
+            onDragStart={onDragStart}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+                e.preventDefault()
+                onDropOnTask()
             }}>
             {isEditing ? (
                 <Input

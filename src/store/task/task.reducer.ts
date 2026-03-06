@@ -35,18 +35,22 @@ export function taskReducer(state: Task[], action: TaskAction): Task[] {
             const task = state.find((t) => t.id === action.payload.id)
             if (!task) return state
 
-            const updated = state.map((t) =>
-                t.id === task.id
-                    ? { ...t, order: action.payload.newOrder }
-                    : t
-            )
+            const dayTasks = state
+                .filter((t) => t.date === task.date)
+                .sort((a, b) => a.order - b.order)
 
-            const normalized = normalizeOrder(updated, task.date)
+            const otherTasks = state.filter((t) => t.date !== task.date)
 
-            return [
-                ...updated.filter((t) => t.date !== task.date),
-                ...normalized,
-            ]
+            const filtered = dayTasks.filter((t) => t.id !== task.id)
+
+            filtered.splice(action.payload.newOrder, 0, task)
+
+            const reordered = filtered.map((t, index) => ({
+                ...t,
+                order: index,
+            }))
+
+            return [...otherTasks, ...reordered]
         }
 
         case "MOVE_TASK": {

@@ -20,6 +20,7 @@ export function DayCell({
                             dispatch,
                         }: Props) {
     const [title, setTitle] = useState("")
+    const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
 
     function handleAddTask() {
         if (!title.trim()) return
@@ -37,8 +38,28 @@ export function DayCell({
         setTitle("")
     }
 
+    function handleDrop(
+        e: React.DragEvent<HTMLDivElement>
+    ) {
+        e.preventDefault()
+
+        const draggedTaskId = e.dataTransfer.getData("taskId")
+        if (!draggedTaskId) return
+
+        dispatch({
+            type: "REORDER_TASK",
+            payload: {
+                id: draggedTaskId,
+                newOrder: tasks.length,
+            },
+        })
+    }
+
     return (
-        <Container $isCurrentMonth={isCurrentMonth}>
+        <Container
+                   $isCurrentMonth={isCurrentMonth}
+                   onDragOver={(e) => e.preventDefault()}
+                   onDrop={handleDrop}>
             <Header>{getDayNumber(date)}</Header>
 
             {tasks.map((task) => (
@@ -46,6 +67,18 @@ export function DayCell({
                     key={task.id}
                     task={task}
                     dispatch={dispatch}
+                    onDragStart={() => setDraggedTaskId(task.id)}
+                    onDropOnTask={() => {
+                        if (!draggedTaskId) return
+
+                        dispatch({
+                            type: "REORDER_TASK",
+                            payload: {
+                                id: draggedTaskId,
+                                newOrder: task.order,
+                            },
+                        })
+                    }}
                 />
             ))}
 
