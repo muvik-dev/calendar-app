@@ -1,10 +1,17 @@
 import { generateCalendarDays } from "@/domain/calendar/generateCalendarDays"
 import { WEEK_DAYS } from "@/domain/date/week.constants"
-import { CalendarContainer, WeekHeaderCell } from "./CalendarGrid.styles"
+import {
+    CalendarContainer,
+    CalendarGridWrapper,
+    SidePanel,
+    WeekHeaderCell,
+} from "./CalendarGrid.styles"
 import { useTaskStore } from "@/store/task/useTaskStore"
 import type { Task } from "@/domain/task/task.types"
 import { DayCell } from "./DayCell"
-import {useState} from "react";
+import { useMemo, useRef, useState } from "react"
+import type { DateKey } from "@/domain/types/date"
+import { DayTaskList } from "./DayTaskList"
 
 interface Props {
     year: number
@@ -60,26 +67,82 @@ export function CalendarGrid({ year, month }: Props) {
 
     const { tasks, dispatch } = useTaskStore(initialTasks)
     const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
+    const [selectedDate, setSelectedDate] = useState<DateKey | null>(null)
+    const sidePanelRef = useRef<HTMLDivElement | null>(null)
 
     const tasksByDate = groupTasksByDate(tasks)
 
-    return (
-        <CalendarContainer>
-            {WEEK_DAYS.map((day) => (
-                <WeekHeaderCell key={day}>{day}</WeekHeaderCell>
-            ))}
+    const selectedDayTasks = useMemo(
+        () => (selectedDate ? tasksByDate.get(selectedDate) ?? [] : []),
+        [selectedDate, tasksByDate]
+    )
 
-            {days.map((day) => (
-                <DayCell
-                    key={day.date}
-                    date={day.date}
-                    isCurrentMonth={day.isCurrentMonth}
-                    tasks={tasksByDate.get(day.date) ?? []}
-                    dispatch={dispatch}
-                    draggedTaskId={draggedTaskId}
-                    setDraggedTaskId={setDraggedTaskId}
-                />
-            ))}
+    const todayKey: DateKey = new Date().toISOString().slice(0, 10) as DateKey
+
+    function handleContainerClick(event: React.MouseEvent<HTMLDivElement>) {
+        if (!selectedDate) return
+        if (!sidePanelRef.current) return
+
+        if (!sidePanelRef.current.contains(event.target as Node)) {
+            setSelectedDate(null)
+        }
+    }
+
+    return (
+        <CalendarContainer onClickCapture={handleContainerClick}>
+            <CalendarGridWrapper>
+                {WEEK_DAYS.map((day) => (
+                    <WeekHeaderCell key={day}>{day}</WeekHeaderCell>
+                ))}
+
+                {days.map((day) => (
+                    <DayCell
+                        key={day.date}
+                        date={day.date}
+                        isCurrentMonth={day.isCurrentMonth}
+                        tasks={tasksByDate.get(day.date) ?? []}
+                        dispatch={dispatch}
+                        draggedTaskId={draggedTaskId}
+                        setDraggedTaskId={setDraggedTaskId}
+                        onShowAllTasks={(date) => setSelectedDate(date)}
+                        isToday={day.date === todayKey}
+                    />
+                ))}
+            </CalendarGridWrapper>
+
+            {selectedDate && (
+                <SidePanel ref={sidePanelRef}>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                        }}
+                    >
+                        <h3>Tasks for {selectedDate}</h3>
+                        <button
+                            type="button"
+                            onClick={() => setSelectedDate(null)}
+                            style={{
+                                border: "none",
+                                background: "transparent",
+                                cursor: "pointer",
+                                fontSize: "16px",
+                            }}
+                        >
+                            ×
+                        </button>
+                    </div>
+                    <DayTaskList
+                        date={selectedDate}
+                        tasks={selectedDayTasks}
+                        dispatch={dispatch}
+                        draggedTaskId={draggedTaskId}
+                        setDraggedTaskId={setDraggedTaskId}
+                        showHeader={false}
+                    />
+                </SidePanel>
+            )}
         </CalendarContainer>
     )
 }
