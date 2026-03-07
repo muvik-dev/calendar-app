@@ -7,8 +7,56 @@ export const CalendarContainer = styled.div`
 
 export const CalendarHeader = styled.div`
     display: flex;
-    justify-content: flex-end;
-    margin-bottom: 8px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+`
+
+export const MonthNav = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+`
+
+export const NavButton = styled.button`
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+
+    &:hover {
+        background: #f5f5f5;
+        border-color: #999;
+    }
+`
+
+export const MonthYearTitle = styled.div`
+    flex: 1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+`
+
+export const TodayButton = styled.button`
+    border: 1px solid #0070f3;
+    background: #0070f3;
+    color: #fff;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover {
+        background: #0060dd;
+        border-color: #0060dd;
+    }
 `
 
 export const SearchInput = styled.input`

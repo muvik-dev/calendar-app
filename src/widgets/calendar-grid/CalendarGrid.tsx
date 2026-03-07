@@ -4,8 +4,12 @@ import {
     CalendarContainer,
     CalendarGridWrapper,
     CalendarHeader,
+    MonthNav,
+    MonthYearTitle,
+    NavButton,
     SearchInput,
     SidePanel,
+    TodayButton,
     WeekHeaderCell,
 } from "./CalendarGrid.styles"
 import { useTaskStore } from "@/store/task/useTaskStore"
@@ -17,9 +21,14 @@ import { DayTaskList } from "./DayTaskList"
 import type { Holiday } from "@/domain/holiday/holiday.types"
 import { loadHolidays } from "@/api/holidays"
 
+const MONTH_NAMES = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+]
+
 interface Props {
-    year: number
-    month: number
+    year?: number
+    month?: number
 }
 
 const initialTasks: Task[] = [
@@ -66,8 +75,20 @@ function groupTasksByDate(tasks: Task[]) {
     return map
 }
 
-export function CalendarGrid({ year, month }: Props) {
-    const days = generateCalendarDays(year, month)
+function getTodayView() {
+    const d = new Date()
+    return { year: d.getFullYear(), month: d.getMonth() }
+}
+
+export function CalendarGrid(props: Props) {
+    const today = getTodayView()
+    const initialYear = props.year ?? today.year
+    const initialMonth = props.month ?? today.month
+
+    const [viewYear, setViewYear] = useState(initialYear)
+    const [viewMonth, setViewMonth] = useState(initialMonth)
+
+    const days = generateCalendarDays(viewYear, viewMonth)
 
     const { tasks, dispatch } = useTaskStore(initialTasks)
     const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
@@ -111,9 +132,47 @@ export function CalendarGrid({ year, month }: Props) {
         }
     }
 
+    function goPrevMonth() {
+        if (viewMonth === 0) {
+            setViewMonth(11)
+            setViewYear((y) => y - 1)
+        } else {
+            setViewMonth((m) => m - 1)
+        }
+    }
+
+    function goNextMonth() {
+        if (viewMonth === 11) {
+            setViewMonth(0)
+            setViewYear((y) => y + 1)
+        } else {
+            setViewMonth((m) => m + 1)
+        }
+    }
+
+    function goToToday() {
+        const { year: y, month: m } = getTodayView()
+        setViewYear(y)
+        setViewMonth(m)
+    }
+
     return (
         <CalendarContainer onClickCapture={handleContainerClick}>
             <CalendarHeader>
+                <MonthNav>
+                    <NavButton type="button" onClick={goPrevMonth} aria-label="Previous month">
+                        ‹
+                    </NavButton>
+                    <NavButton type="button" onClick={goNextMonth} aria-label="Next month">
+                        ›
+                    </NavButton>
+                </MonthNav>
+                <MonthYearTitle>
+                    {MONTH_NAMES[viewMonth]} {viewYear}
+                </MonthYearTitle>
+                <TodayButton type="button" onClick={goToToday}>
+                    Today
+                </TodayButton>
                 <SearchInput
                     type="text"
                     placeholder="Search tasks..."
