@@ -11,86 +11,37 @@ import {
     SidePanel,
     TodayButton,
     WeekHeaderCell,
-} from "./CalendarGrid.styles"
-import { useTaskStore } from "@/store/task/useTaskStore"
-import type { Task } from "@/domain/task/task.types"
+} from "@/styles/Calendar"
+import { useTaskStoreWithApi } from "@/store/task/useTaskStoreWithApi"
 import { DayCell } from "./DayCell"
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { DateKey } from "@/domain/types/date"
 import { DayTaskList } from "./DayTaskList"
 import type { Holiday } from "@/domain/holiday/holiday.types"
-import { loadHolidays } from "@/api/holidays"
+import { getAvailableCountries, loadHolidaysForCountry, loadNextHolidaysWorldwide,} from "@/api/holidays"
+import type { AvailableCountry } from "@/api/holidays"
+import { CountrySelect } from "@/components/CountrySelect"
+import { groupTasksByDate } from "@/utils/groupTasksByDate";
 
 const MONTH_NAMES = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December",
 ]
 
-interface Props {
-    year?: number
-    month?: number
-}
-
-const initialTasks: Task[] = [
-    {
-        id: "1",
-        title: "Design review",
-        date: "2026-03-05",
-        order: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-    },
-    {
-        id: "2",
-        title: "Team meeting",
-        date: "2026-03-05",
-        order: 1,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-    },
-    {
-        id: "3",
-        title: "Write documentation",
-        date: "2026-03-12",
-        order: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-    },
-]
-
-function groupTasksByDate(tasks: Task[]) {
-    const map = new Map<string, Task[]>()
-
-    for (const task of tasks) {
-        if (!map.has(task.date)) {
-            map.set(task.date, [])
-        }
-        map.get(task.date)!.push(task)
-    }
-
-    for (const [, value] of map) {
-        value.sort((a, b) => a.order - b.order)
-    }
-
-    return map
-}
-
 function getTodayView() {
     const d = new Date()
     return { year: d.getFullYear(), month: d.getMonth() }
 }
 
-export function CalendarGrid(props: Props) {
+export function CalendarGrid() {
     const today = getTodayView()
-    const initialYear = props.year ?? today.year
-    const initialMonth = props.month ?? today.month
 
-    const [viewYear, setViewYear] = useState(initialYear)
-    const [viewMonth, setViewMonth] = useState(initialMonth)
+    const [viewYear, setViewYear] = useState(today.year)
+    const [viewMonth, setViewMonth] = useState(today.month)
 
     const days = generateCalendarDays(viewYear, viewMonth)
 
-    const { tasks, dispatch } = useTaskStore(initialTasks)
+    const { tasks, dispatch, loading: tasksLoading, error: tasksError } = useTaskStoreWithApi()
     const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
     const [selectedDate, setSelectedDate] = useState<DateKey | null>(null)
     const [search, setSearch] = useState("")
@@ -109,12 +60,37 @@ export function CalendarGrid(props: Props) {
     const [holidaysByDate, setHolidaysByDate] = useState<
         Record<DateKey, Holiday[]>
     >({})
+    const [holidayCountry, setHolidayCountry] = useState<string | null>(null)
+    const [countries, setCountries] = useState<AvailableCountry[]>([])
+    const [countriesLoading, setCountriesLoading] = useState(true)
+    const countryYearCacheRef = useRef<Record<string, Record<DateKey, Holiday[]>>>({})
 
     useEffect(() => {
-        loadHolidays().then(r =>
-            setHolidaysByDate(r)
-        ).catch(e => console.error('Error loading holidays:', e))
+        getAvailableCountries()
+            .then(setCountries)
+            .finally(() => setCountriesLoading(false))
     }, [])
+
+    useEffect(() => {
+        if (holidayCountry === null) {
+            loadNextHolidaysWorldwide()
+                .then(setHolidaysByDate)
+                .catch((e) => console.error("Error loading next holidays:", e))
+            return
+        }
+        const cacheKey = `${viewYear}-${holidayCountry}`
+        const cache = countryYearCacheRef.current
+        if (cache[cacheKey] != null) {
+            setHolidaysByDate(cache[cacheKey])
+            return
+        }
+        loadHolidaysForCountry(viewYear, holidayCountry)
+            .then((byDate) => {
+                cache[cacheKey] = byDate
+                setHolidaysByDate(byDate)
+            })
+            .catch((e) => console.error("Error loading country holidays:", e))
+    }, [holidayCountry, viewYear])
 
     const selectedDayTasks = useMemo(
         () => (selectedDate ? tasksByDate.get(selectedDate) ?? [] : []),
@@ -173,6 +149,12 @@ export function CalendarGrid(props: Props) {
                 <TodayButton type="button" onClick={goToToday}>
                     Today
                 </TodayButton>
+                <CountrySelect
+                    value={holidayCountry}
+                    options={countries}
+                    loading={countriesLoading}
+                    onChange={setHolidayCountry}
+                />
                 <SearchInput
                     type="text"
                     placeholder="Search tasks..."
@@ -180,6 +162,17 @@ export function CalendarGrid(props: Props) {
                     onChange={(e) => setSearch(e.target.value)}
                 />
             </CalendarHeader>
+
+            {tasksLoading && (
+                <p style={{ margin: "0 0 8px", fontSize: 13, color: "#666" }}>
+                    Loading tasks…
+                </p>
+            )}
+            {tasksError && (
+                <p style={{ margin: "0 0 8px", fontSize: 13, color: "#c61a1a" }}>
+                    {tasksError}
+                </p>
+            )}
 
             <CalendarGridWrapper>
                 {WEEK_DAYS.map((day) => (

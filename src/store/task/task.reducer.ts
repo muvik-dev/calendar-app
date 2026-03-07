@@ -3,6 +3,9 @@ import type { TaskAction } from "./task.actions"
 
 export function taskReducer(state: Task[], action: TaskAction): Task[] {
     switch (action.type) {
+        case "SET_TASKS":
+            return action.payload
+
         case "ADD_TASK":
             return [...state, action.payload]
 

@@ -2,6 +2,7 @@ import type { Task } from "@/domain/task/task.types"
 import type { DateKey } from "@/domain/types/date"
 
 export type TaskAction =
+    | { type: "SET_TASKS"; payload: Task[] }
     | { type: "ADD_TASK"; payload: Task }
     | { type: "UPDATE_TASK"; payload: { id: string; title: string } }
     | { type: "DELETE_TASK"; payload: { id: string } }

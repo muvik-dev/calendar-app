@@ -4,7 +4,7 @@ import type { DateKey } from "@/domain/types/date"
 import type { Task } from "@/domain/task/task.types"
 import type { TaskAction } from "@/store/task/task.actions"
 import type { Holiday } from "@/domain/holiday/holiday.types"
-import { TaskItem } from "@/components/task/TaskItem"
+import { TaskItem } from "@/components/TaskItem"
 
 interface Props {
     date: DateKey

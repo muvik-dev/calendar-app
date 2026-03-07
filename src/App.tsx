@@ -1,7 +1,7 @@
-import { CalendarGrid } from "@/widgets/calendar-grid/CalendarGrid"
+import { CalendarGrid } from "@/components/calendar/CalendarGrid.tsx"
 
 function App() {
-  return <CalendarGrid year={2026} month={2} />
+  return <CalendarGrid />
 
 }
 
