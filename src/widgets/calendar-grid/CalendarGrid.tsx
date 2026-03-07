@@ -3,15 +3,19 @@ import { WEEK_DAYS } from "@/domain/date/week.constants"
 import {
     CalendarContainer,
     CalendarGridWrapper,
+    CalendarHeader,
+    SearchInput,
     SidePanel,
     WeekHeaderCell,
 } from "./CalendarGrid.styles"
 import { useTaskStore } from "@/store/task/useTaskStore"
 import type { Task } from "@/domain/task/task.types"
 import { DayCell } from "./DayCell"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { DateKey } from "@/domain/types/date"
 import { DayTaskList } from "./DayTaskList"
+import type { Holiday } from "@/domain/holiday/holiday.types"
+import { loadHolidays } from "@/api/holidays"
 
 interface Props {
     year: number
@@ -68,9 +72,28 @@ export function CalendarGrid({ year, month }: Props) {
     const { tasks, dispatch } = useTaskStore(initialTasks)
     const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
     const [selectedDate, setSelectedDate] = useState<DateKey | null>(null)
+    const [search, setSearch] = useState("")
     const sidePanelRef = useRef<HTMLDivElement | null>(null)
 
-    const tasksByDate = groupTasksByDate(tasks)
+    const filteredTasks = useMemo(() => {
+        const query = search.trim().toLowerCase()
+        if (!query) return tasks
+        return tasks.filter((task) =>
+            task.title.toLowerCase().includes(query)
+        )
+    }, [tasks, search])
+
+    const tasksByDate = groupTasksByDate(filteredTasks)
+
+    const [holidaysByDate, setHolidaysByDate] = useState<
+        Record<DateKey, Holiday[]>
+    >({})
+
+    useEffect(() => {
+        loadHolidays().then(r =>
+            setHolidaysByDate(r)
+        ).catch(e => console.error('Error loading holidays:', e))
+    }, [])
 
     const selectedDayTasks = useMemo(
         () => (selectedDate ? tasksByDate.get(selectedDate) ?? [] : []),
@@ -90,6 +113,15 @@ export function CalendarGrid({ year, month }: Props) {
 
     return (
         <CalendarContainer onClickCapture={handleContainerClick}>
+            <CalendarHeader>
+                <SearchInput
+                    type="text"
+                    placeholder="Search tasks..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            </CalendarHeader>
+
             <CalendarGridWrapper>
                 {WEEK_DAYS.map((day) => (
                     <WeekHeaderCell key={day}>{day}</WeekHeaderCell>
@@ -106,6 +138,7 @@ export function CalendarGrid({ year, month }: Props) {
                         setDraggedTaskId={setDraggedTaskId}
                         onShowAllTasks={(date) => setSelectedDate(date)}
                         isToday={day.date === todayKey}
+                        holidays={holidaysByDate[day.date] ?? []}
                     />
                 ))}
             </CalendarGridWrapper>
@@ -140,6 +173,7 @@ export function CalendarGrid({ year, month }: Props) {
                         draggedTaskId={draggedTaskId}
                         setDraggedTaskId={setDraggedTaskId}
                         showHeader={false}
+                        holidays={holidaysByDate[selectedDate] ?? []}
                     />
                 </SidePanel>
             )}

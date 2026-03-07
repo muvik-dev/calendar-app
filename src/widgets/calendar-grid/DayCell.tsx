@@ -3,6 +3,7 @@ import type { DateKey } from "@/domain/types/date"
 import type { Task } from "@/domain/task/task.types"
 import type { TaskAction } from "@/store/task/task.actions"
 import { DayTaskList } from "./DayTaskList"
+import type { Holiday } from "@/domain/holiday/holiday.types"
 
 interface Props {
     date: DateKey
@@ -14,6 +15,7 @@ interface Props {
     setDraggedTaskId: (id: string | null) => void
     onShowAllTasks: (date: DateKey) => void
     isToday: boolean
+    holidays: Holiday[]
 }
 
 export function DayCell({
@@ -25,6 +27,7 @@ export function DayCell({
     setDraggedTaskId,
     onShowAllTasks,
     isToday,
+    holidays,
 }: Props) {
     return (
         <Container
@@ -66,6 +69,7 @@ export function DayCell({
                 setDraggedTaskId={setDraggedTaskId}
                 maxVisibleTasks={2}
                 onShowAllClick={() => onShowAllTasks(date)}
+                holidays={holidays}
             />
         </Container>
     )

@@ -1,9 +1,9 @@
 import { useState } from "react"
 import styled from "@emotion/styled"
-import { getDayNumber } from "@/domain/date/format.utils"
 import type { DateKey } from "@/domain/types/date"
 import type { Task } from "@/domain/task/task.types"
 import type { TaskAction } from "@/store/task/task.actions"
+import type { Holiday } from "@/domain/holiday/holiday.types"
 import { TaskItem } from "@/components/task/TaskItem"
 
 interface Props {
@@ -15,6 +15,7 @@ interface Props {
     maxVisibleTasks?: number
     showHeader?: boolean
     onShowAllClick?: () => void
+    holidays?: Holiday[]
 }
 
 export function DayTaskList({
@@ -26,17 +27,22 @@ export function DayTaskList({
     maxVisibleTasks,
     showHeader = true,
     onShowAllClick,
+    holidays = [],
 }: Props) {
     const [title, setTitle] = useState("")
 
-    const visibleTasks =
-        typeof maxVisibleTasks === "number"
-            ? tasks.slice(0, maxVisibleTasks)
-            : tasks
-    const hiddenCount =
-        typeof maxVisibleTasks === "number"
-            ? Math.max(0, tasks.length - maxVisibleTasks)
-            : 0
+    const hasLimit = typeof maxVisibleTasks === "number"
+
+    const totalItems = holidays.length + tasks.length
+
+    const visibleHolidays = hasLimit ? holidays.slice(0, maxVisibleTasks) : holidays
+
+    const remainingSlots = hasLimit ? Math.max(0, maxVisibleTasks - visibleHolidays.length) : tasks.length
+
+    const visibleTasks = hasLimit ? tasks.slice(0, remainingSlots) : tasks
+
+    const shownCount = visibleHolidays.length + visibleTasks.length
+    const hiddenCount = hasLimit ? Math.max(0, totalItems - shownCount) : 0
 
     function handleAddTask() {
         if (!title.trim()) return
@@ -81,9 +87,42 @@ export function DayTaskList({
         setDraggedTaskId(null)
     }
 
+    function getHeaderLabel() {
+        const dateObj = new Date(date)
+        const day = dateObj.getUTCDate()
+        const year = dateObj.getUTCFullYear()
+        const month = dateObj.getUTCMonth()
+
+        const lastDayOfMonth = new Date(
+            Date.UTC(year, month + 1, 0)
+        ).getUTCDate()
+
+        const isFirstOfMonth = day === 1
+        const isLastOfMonth = day === lastDayOfMonth
+
+        if (!isFirstOfMonth && !isLastOfMonth) {
+            return String(day)
+        }
+
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        const monthLabel = monthNames[month]
+        console.log('monthLabel: ', `${day} ${monthLabel}`)
+        return `${day} ${monthLabel}`
+    }
+
     return (
         <>
-            {showHeader && <Header>{getDayNumber(date)}</Header>}
+            {showHeader && <Header>{getHeaderLabel()}</Header>}
+
+            {visibleHolidays.length > 0 && (
+                <HolidayList>
+                    {visibleHolidays.map((holiday) => (
+                        <HolidayPill key={`${holiday.countryCode}-${holiday.name}`}>
+                            {holiday.name} ({holiday.countryCode})
+                        </HolidayPill>
+                    ))}
+                </HolidayList>
+            )}
 
             {visibleTasks.map((task) => (
                 <TaskItem
@@ -101,16 +140,18 @@ export function DayTaskList({
                 </MoreButton>
             )}
 
-            <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                        handleAddTask()
-                    }
-                }}
-                placeholder="+ Add task"
-            />
+            {(!hasLimit || hiddenCount === 0) && (
+                <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            handleAddTask()
+                        }
+                    }}
+                    placeholder="+ Add task"
+                />
+            )}
         </>
     )
 }
@@ -118,6 +159,21 @@ export function DayTaskList({
 const Header = styled.div`
     font-size: 14px;
     font-weight: 600;
+`
+
+const HolidayList = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 4px;
+`
+
+const HolidayPill = styled.span`
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    background: #ffe9c7;
+    color: #8a4b00;
 `
 
 const Input = styled.input`
