@@ -106,7 +106,6 @@ export function DayTaskList({
 
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         const monthLabel = monthNames[month]
-        console.log('monthLabel: ', `${day} ${monthLabel}`)
         return `${day} ${monthLabel}`
     }
 
