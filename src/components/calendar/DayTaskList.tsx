@@ -116,8 +116,8 @@ export function DayTaskList({
             {visibleHolidays.length > 0 && (
                 <HolidayList>
                     {visibleHolidays.map((holiday) => (
-                        <HolidayPill key={`${holiday.countryCode}-${holiday.name}`}>
-                            {holiday.name} ({holiday.countryCode})
+                        <HolidayPill key={holiday.name}>
+                            {holiday.name}
                         </HolidayPill>
                     ))}
                 </HolidayList>

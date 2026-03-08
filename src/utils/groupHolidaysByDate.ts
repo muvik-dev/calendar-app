@@ -9,7 +9,11 @@ export function groupHolidaysByDate(
     for (const holiday of holidays) {
         const key = holiday.date as DateKey
         if (!byDate[key]) byDate[key] = []
-        byDate[key].push(holiday)
+
+        const alreadyListed = byDate[key].some((h) => h.name === holiday.name)
+        if (!alreadyListed) {
+            byDate[key].push(holiday)
+        }
     }
 
     return byDate
