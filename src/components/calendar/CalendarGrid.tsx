@@ -5,14 +5,16 @@ import {
     CalendarMain,
     CalendarGridWrapper,
     CalendarHeader,
-    MonthNav,
+    HeaderLeft,
+    HeaderCenter,
+    HeaderRight,
     MonthYearTitle,
     NavButton,
     SearchInput,
     SidePanel,
     TodayButton,
     WeekHeaderCell,
-} from "@/styles/Calendar"
+} from "@/styles/calendar.style.ts"
 import { useTaskStoreWithApi } from "@/store/task/useTaskStoreWithApi"
 import { DayCell } from "./DayCell"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -21,7 +23,7 @@ import { DayTaskList } from "./DayTaskList"
 import type { Holiday } from "@/domain/holiday/holiday.types"
 import { getAvailableCountries, loadHolidaysForCountry, loadNextHolidaysWorldwide,} from "@/api/holidays"
 import type { AvailableCountry } from "@/api/holidays"
-import { CountrySelect } from "@/components/CountrySelect"
+import { CountrySelect, TASKS_ONLY } from "@/components/CountrySelect"
 import { groupTasksByDate } from "@/utils/groupTasksByDate";
 
 const MONTH_NAMES = [
@@ -73,6 +75,10 @@ export function CalendarGrid() {
     }, [])
 
     useEffect(() => {
+        if (holidayCountry === TASKS_ONLY) {
+            setHolidaysByDate({})
+            return
+        }
         if (holidayCountry === null) {
             loadNextHolidaysWorldwide()
                 .then(setHolidaysByDate)
@@ -137,32 +143,35 @@ export function CalendarGrid() {
         <CalendarContainer onClickCapture={handleContainerClick}>
             <CalendarMain>
                 <CalendarHeader>
-                    <MonthNav>
+                    <HeaderLeft />
+                    <HeaderCenter>
                         <NavButton type="button" onClick={goPrevMonth} aria-label="Previous month">
                             ‹
                         </NavButton>
+                        <MonthYearTitle>
+                            {MONTH_NAMES[viewMonth]} {viewYear}
+                        </MonthYearTitle>
                         <NavButton type="button" onClick={goNextMonth} aria-label="Next month">
                             ›
                         </NavButton>
-                    </MonthNav>
-                    <MonthYearTitle>
-                        {MONTH_NAMES[viewMonth]} {viewYear}
-                    </MonthYearTitle>
-                    <TodayButton type="button" onClick={goToToday}>
-                        Today
-                    </TodayButton>
-                    <CountrySelect
-                        value={holidayCountry}
-                        options={countries}
-                        loading={countriesLoading}
-                        onChange={setHolidayCountry}
-                    />
-                    <SearchInput
-                        type="text"
-                        placeholder="Search tasks..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
+                    </HeaderCenter>
+                    <HeaderRight>
+                        <TodayButton type="button" onClick={goToToday}>
+                            Today
+                        </TodayButton>
+                        <CountrySelect
+                            value={holidayCountry}
+                            options={countries}
+                            loading={countriesLoading}
+                            onChange={setHolidayCountry}
+                        />
+                        <SearchInput
+                            type="text"
+                            placeholder="Search tasks..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </HeaderRight>
                 </CalendarHeader>
 
                 {tasksLoading && (

@@ -3,6 +3,8 @@ import styled from "@emotion/styled"
 import type { AvailableCountry } from "@/api/holidays"
 
 const NEAREST_LABEL = "Nearest holidays"
+const TASKS_ONLY_LABEL = "Tasks only"
+export const TASKS_ONLY = "__tasks_only__"
 
 interface Props {
     value: string | null
@@ -23,7 +25,9 @@ export function CountrySelect({
 
     const displayLabel = value === null
         ? NEAREST_LABEL
-        : options.find((c) => c.countryCode === value)?.name ?? value
+        : value === TASKS_ONLY
+            ? TASKS_ONLY_LABEL
+            : options.find((c) => c.countryCode === value)?.name ?? value
 
     const filteredOptions = useMemo(() => {
         const q = search.trim().toLowerCase()
@@ -74,6 +78,16 @@ export function CountrySelect({
                             }}
                         >
                             {NEAREST_LABEL}
+                        </Option>
+                        <Option
+                            $active={value === TASKS_ONLY}
+                            onClick={() => {
+                                onChange(TASKS_ONLY)
+                                setOpen(false)
+                                setSearch("")
+                            }}
+                        >
+                            {TASKS_ONLY_LABEL}
                         </Option>
                         {filteredOptions.map((c) => (
                             <Option

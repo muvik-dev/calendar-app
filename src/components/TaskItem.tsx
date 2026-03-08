@@ -8,6 +8,7 @@ interface Props {
     dispatch: React.Dispatch<TaskAction>
     onDragStart: () => void
     onDropOnTask: () => void
+    truncate?: boolean
 }
 
 export function TaskItem({
@@ -15,6 +16,7 @@ export function TaskItem({
                              dispatch,
                              onDragStart,
                              onDropOnTask,
+                             truncate = false,
                          }: Props) {
     const [isEditing, setIsEditing] = useState(false)
     const [value, setValue] = useState(task.title)
@@ -64,7 +66,7 @@ export function TaskItem({
                     }}
                 />
             ) : (
-                <Title onClick={() => setIsEditing(true)}>
+                <Title $truncate={truncate} onClick={() => setIsEditing(true)}>
                     {task.title}
                 </Title>
             )}
@@ -88,11 +90,21 @@ const Container = styled.div`
   background: #f2f2f2;
   padding: 4px;
   border-radius: 4px;
+  min-width: 0;
+  flex-shrink: 0;
 `
 
-const Title = styled.div`
+const Title = styled.div<{ $truncate: boolean }>`
   flex: 1;
+  min-width: 0;
   cursor: pointer;
+  ${({ $truncate }) =>
+      $truncate &&
+      `
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+  `}
 `
 
 const Input = styled.input`

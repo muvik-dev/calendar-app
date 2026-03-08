@@ -19,10 +19,25 @@ export const CalendarHeader = styled.div`
     margin-bottom: 12px;
 `
 
-export const MonthNav = styled.div`
+export const HeaderLeft = styled.div`
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
+    flex: 1;
+`
+
+export const HeaderCenter = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+`
+
+export const HeaderRight = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: flex-end;
 `
 
 export const NavButton = styled.button`
@@ -45,10 +60,9 @@ export const NavButton = styled.button`
 `
 
 export const MonthYearTitle = styled.div`
-    flex: 1;
-    text-align: center;
     font-size: 18px;
     font-weight: 600;
+    padding: 0 15px;
 `
 
 export const TodayButton = styled.button`

@@ -113,15 +113,11 @@ export function DayTaskList({
         <>
             {showHeader && <Header>{getHeaderLabel()}</Header>}
 
-            {visibleHolidays.length > 0 && (
-                <HolidayList>
-                    {visibleHolidays.map((holiday) => (
-                        <HolidayPill key={holiday.name}>
-                            {holiday.name}
-                        </HolidayPill>
-                    ))}
-                </HolidayList>
-            )}
+            {visibleHolidays.map((holiday) => (
+                <HolidayItem key={holiday.name} $truncate={hasLimit}>
+                    {holiday.name}
+                </HolidayItem>
+            ))}
 
             {visibleTasks.map((task) => (
                 <TaskItem
@@ -130,6 +126,7 @@ export function DayTaskList({
                     dispatch={dispatch}
                     onDragStart={() => setDraggedTaskId(task.id)}
                     onDropOnTask={() => handleDropOnTask(task.order)}
+                    truncate={hasLimit}
                 />
             ))}
 
@@ -158,21 +155,23 @@ export function DayTaskList({
 const Header = styled.div`
     font-size: 14px;
     font-weight: 600;
+    flex-shrink: 0;
 `
 
-const HolidayList = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-bottom: 4px;
-`
-
-const HolidayPill = styled.span`
-    font-size: 10px;
-    padding: 2px 4px;
+const HolidayItem = styled.div<{ $truncate: boolean }>`
+    font-size: 12px;
+    padding: 4px;
     border-radius: 4px;
     background: #ffe9c7;
     color: #8a4b00;
+    flex-shrink: 0;
+    ${({ $truncate }) =>
+        $truncate &&
+        `
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    `}
 `
 
 const Input = styled.input`
@@ -180,6 +179,7 @@ const Input = styled.input`
     border-top: 1px solid #eee;
     padding: 4px;
     font-size: 12px;
+    flex-shrink: 0;
 
     &:focus {
         outline: none;
@@ -193,5 +193,6 @@ const MoreButton = styled.button`
     font-size: 11px;
     color: #0070f3;
     align-self: flex-start;
+    flex-shrink: 0;
 `
 

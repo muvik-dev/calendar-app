@@ -81,6 +81,7 @@ const Container = styled.div<{ $isCurrentMonth: boolean; $isToday: boolean }>`
     display: flex;
     flex-direction: column;
     gap: 4px;
+    overflow: hidden;
 
     background-color: ${({ $isCurrentMonth, $isToday }) =>
             $isToday
