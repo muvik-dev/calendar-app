@@ -1,8 +1,15 @@
 import styled from "@emotion/styled"
 
 export const CalendarContainer = styled.div`
-    position: relative;
+    display: flex;
+    height: 100vh;
+`
+
+export const CalendarMain = styled.div`
+    flex: 1;
+    min-width: 0;
     padding: 16px;
+    overflow: auto;
 `
 
 export const CalendarHeader = styled.div`
@@ -89,16 +96,13 @@ export const WeekHeaderCell = styled.div`
 `
 
 export const SidePanel = styled.div`
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
     width: 320px;
+    flex-shrink: 0;
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 8px;
     background: #fafafa;
     box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-    z-index: 1001;
+    overflow-y: auto;
 `

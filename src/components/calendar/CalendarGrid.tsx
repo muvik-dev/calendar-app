@@ -2,6 +2,7 @@ import { generateCalendarDays } from "@/domain/calendar/generateCalendarDays"
 import { WEEK_DAYS } from "@/domain/date/week.constants"
 import {
     CalendarContainer,
+    CalendarMain,
     CalendarGridWrapper,
     CalendarHeader,
     MonthNav,
@@ -134,66 +135,68 @@ export function CalendarGrid() {
 
     return (
         <CalendarContainer onClickCapture={handleContainerClick}>
-            <CalendarHeader>
-                <MonthNav>
-                    <NavButton type="button" onClick={goPrevMonth} aria-label="Previous month">
-                        ‹
-                    </NavButton>
-                    <NavButton type="button" onClick={goNextMonth} aria-label="Next month">
-                        ›
-                    </NavButton>
-                </MonthNav>
-                <MonthYearTitle>
-                    {MONTH_NAMES[viewMonth]} {viewYear}
-                </MonthYearTitle>
-                <TodayButton type="button" onClick={goToToday}>
-                    Today
-                </TodayButton>
-                <CountrySelect
-                    value={holidayCountry}
-                    options={countries}
-                    loading={countriesLoading}
-                    onChange={setHolidayCountry}
-                />
-                <SearchInput
-                    type="text"
-                    placeholder="Search tasks..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-            </CalendarHeader>
-
-            {tasksLoading && (
-                <p style={{ margin: "0 0 8px", fontSize: 13, color: "#666" }}>
-                    Loading tasks…
-                </p>
-            )}
-            {tasksError && (
-                <p style={{ margin: "0 0 8px", fontSize: 13, color: "#c61a1a" }}>
-                    {tasksError}
-                </p>
-            )}
-
-            <CalendarGridWrapper>
-                {WEEK_DAYS.map((day) => (
-                    <WeekHeaderCell key={day}>{day}</WeekHeaderCell>
-                ))}
-
-                {days.map((day) => (
-                    <DayCell
-                        key={day.date}
-                        date={day.date}
-                        isCurrentMonth={day.isCurrentMonth}
-                        tasks={tasksByDate.get(day.date) ?? []}
-                        dispatch={dispatch}
-                        draggedTaskId={draggedTaskId}
-                        setDraggedTaskId={setDraggedTaskId}
-                        onShowAllTasks={(date) => setSelectedDate(date)}
-                        isToday={day.date === todayKey}
-                        holidays={holidaysByDate[day.date] ?? []}
+            <CalendarMain>
+                <CalendarHeader>
+                    <MonthNav>
+                        <NavButton type="button" onClick={goPrevMonth} aria-label="Previous month">
+                            ‹
+                        </NavButton>
+                        <NavButton type="button" onClick={goNextMonth} aria-label="Next month">
+                            ›
+                        </NavButton>
+                    </MonthNav>
+                    <MonthYearTitle>
+                        {MONTH_NAMES[viewMonth]} {viewYear}
+                    </MonthYearTitle>
+                    <TodayButton type="button" onClick={goToToday}>
+                        Today
+                    </TodayButton>
+                    <CountrySelect
+                        value={holidayCountry}
+                        options={countries}
+                        loading={countriesLoading}
+                        onChange={setHolidayCountry}
                     />
-                ))}
-            </CalendarGridWrapper>
+                    <SearchInput
+                        type="text"
+                        placeholder="Search tasks..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </CalendarHeader>
+
+                {tasksLoading && (
+                    <p style={{ margin: "0 0 8px", fontSize: 13, color: "#666" }}>
+                        Loading tasks…
+                    </p>
+                )}
+                {tasksError && (
+                    <p style={{ margin: "0 0 8px", fontSize: 13, color: "#c61a1a" }}>
+                        {tasksError}
+                    </p>
+                )}
+
+                <CalendarGridWrapper>
+                    {WEEK_DAYS.map((day) => (
+                        <WeekHeaderCell key={day}>{day}</WeekHeaderCell>
+                    ))}
+
+                    {days.map((day) => (
+                        <DayCell
+                            key={day.date}
+                            date={day.date}
+                            isCurrentMonth={day.isCurrentMonth}
+                            tasks={tasksByDate.get(day.date) ?? []}
+                            dispatch={dispatch}
+                            draggedTaskId={draggedTaskId}
+                            setDraggedTaskId={setDraggedTaskId}
+                            onShowAllTasks={(date) => setSelectedDate(date)}
+                            isToday={day.date === todayKey}
+                            holidays={holidaysByDate[day.date] ?? []}
+                        />
+                    ))}
+                </CalendarGridWrapper>
+            </CalendarMain>
 
             {selectedDate && (
                 <SidePanel ref={sidePanelRef}>
