@@ -1,6 +1,6 @@
-import { DAY_IN_MS } from "./constants"
+import { DAY_IN_MS } from "../domain/constants"
 import { toDateKey } from "./date.utils"
-import type { DateKey } from "../types/date"
+import type { DateKey } from "../domain/types/date.types"
 
 export function generateMonthGrid(year: number, month: number): DateKey[] {
     const firstDayOfMonth = new Date(Date.UTC(year, month, 1))

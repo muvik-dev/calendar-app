@@ -1,9 +1,9 @@
 import { useState } from "react"
 import styled from "@emotion/styled"
-import type { DateKey } from "@/domain/types/date"
-import type { Task } from "@/domain/task/task.types"
+import type { DateKey } from "@/domain/types/date.types"
+import type { Task } from "@/domain/types/task.types"
 import type { TaskAction } from "@/store/task/task.actions"
-import type { Holiday } from "@/domain/holiday/holiday.types"
+import type { Holiday } from "@/domain/types/holiday.types"
 import { TaskItem } from "@/components/TaskItem"
 
 interface Props {

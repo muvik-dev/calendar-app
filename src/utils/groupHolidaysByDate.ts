@@ -1,5 +1,5 @@
-import type { Holiday } from "@/domain/holiday/holiday.types"
-import type { DateKey } from "@/domain/types/date"
+import type { Holiday } from "@/domain/types/holiday.types"
+import type { DateKey } from "@/domain/types/date.types"
 
 export function groupHolidaysByDate(
     holidays: Holiday[]

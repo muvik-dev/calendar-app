@@ -1,5 +1,5 @@
-import type { Task } from "@/domain/task/task.types"
-import type { DateKey } from "@/domain/types/date"
+import type { Task } from "@/domain/types/task.types"
+import type { DateKey } from "@/domain/types/date.types"
 
 export type TaskAction =
     | { type: "SET_TASKS"; payload: Task[] }

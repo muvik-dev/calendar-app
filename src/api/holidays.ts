@@ -1,6 +1,6 @@
-import type { Holiday } from "@/domain/holiday/holiday.types"
-import type { DateKey } from "@/domain/types/date"
-import { groupHolidaysByDate } from "@/utils/groupHolidaysByDate.ts";
+import type { Holiday } from "@/domain/types/holiday.types"
+import type { DateKey } from "@/domain/types/date.types"
+import { groupHolidaysByDate } from "@/utils/groupHolidaysByDate";
 
 const BASE_URL = "https://date.nager.at/api/v3"
 

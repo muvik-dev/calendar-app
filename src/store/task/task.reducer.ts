@@ -1,4 +1,4 @@
-import type { Task } from "@/domain/task/task.types"
+import type { Task } from "@/domain/types/task.types"
 import type { TaskAction } from "./task.actions"
 
 export function taskReducer(state: Task[], action: TaskAction): Task[] {

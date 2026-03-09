@@ -1,6 +1,6 @@
-import { generateMonthGrid } from "../date/generateMonthGrid"
-import { fromDateKey } from "../date/date.utils"
-import type { CalendarDay } from "./calendar.types"
+import { generateMonthGrid } from "./generateMonthGrid"
+import { fromDateKey } from "./date.utils"
+import type { CalendarDay } from "../domain/types/calendar.types"
 
 export function generateCalendarDays(
     year: number,

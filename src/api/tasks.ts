@@ -1,4 +1,4 @@
-import type { Task } from "@/domain/task/task.types"
+import type { Task } from "@/domain/types/task.types"
 
 const API_BASE = "http://localhost:3001"
 

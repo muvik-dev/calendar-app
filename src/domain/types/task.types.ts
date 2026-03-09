@@ -1,4 +1,4 @@
-import type { DateKey } from "@/domain/types/date"
+import type { DateKey } from "@/domain/types/date.types"
 
 export interface Task {
     id: string

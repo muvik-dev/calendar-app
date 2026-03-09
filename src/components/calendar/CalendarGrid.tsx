@@ -1,5 +1,5 @@
-import { generateCalendarDays } from "@/domain/calendar/generateCalendarDays"
-import { WEEK_DAYS } from "@/domain/date/week.constants"
+import { generateCalendarDays } from "@/utils/generateCalendarDays"
+import { MONTH_NAMES, WEEK_DAYS } from "@/domain/constants"
 import {
     CalendarContainer,
     CalendarMain,
@@ -14,22 +14,17 @@ import {
     SidePanel,
     TodayButton,
     WeekHeaderCell,
-} from "@/styles/calendar.style.ts"
+} from "@/styles/calendar.style"
 import { useTaskStoreWithApi } from "@/store/task/useTaskStoreWithApi"
 import { DayCell } from "./DayCell"
 import { useEffect, useMemo, useRef, useState } from "react"
-import type { DateKey } from "@/domain/types/date"
+import type { DateKey } from "@/domain/types/date.types"
 import { DayTaskList } from "./DayTaskList"
-import type { Holiday } from "@/domain/holiday/holiday.types"
+import type { Holiday } from "@/domain/types/holiday.types"
 import { getAvailableCountries, loadHolidaysForCountry, loadNextHolidaysWorldwide,} from "@/api/holidays"
 import type { AvailableCountry } from "@/api/holidays"
 import { CountrySelect, TASKS_ONLY } from "@/components/CountrySelect"
 import { groupTasksByDate } from "@/utils/groupTasksByDate";
-
-const MONTH_NAMES = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-]
 
 function getTodayView() {
     const d = new Date()

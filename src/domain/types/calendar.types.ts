@@ -1,4 +1,4 @@
-import type { DateKey } from "../types/date"
+import type { DateKey } from "./date.types"
 
 export interface CalendarDay {
     date: DateKey
