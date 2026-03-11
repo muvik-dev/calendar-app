@@ -24,8 +24,14 @@ export async function initDb(): Promise<void> {
 }
 
 function toTask(doc: WithId<TaskDocument>): Task {
-    const { _id, ...task } = doc
-    return task
+    return {
+        id: doc.id,
+        title: doc.title,
+        date: doc.date,
+        order: doc.order,
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt,
+    }
 }
 
 export async function findAll(date?: string): Promise<Task[]> {
