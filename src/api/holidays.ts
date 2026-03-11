@@ -24,12 +24,12 @@ interface HolidayResponse {
     localName: string
     name: string
     countryCode: string
+    global: boolean
     types?: string[]
 }
 
-function onlyPublicHolidays(list: HolidayResponse[]): Holiday[] {
-    return list
-        .filter((h) => h.types?.includes("Public") ?? true)
+function onlyGlobalPublicHolidays(list: HolidayResponse[]): Holiday[] {
+    return list.filter((h) => h.global && h.types?.includes("Public"))
 }
 
 export async function loadNextHolidaysWorldwide(): Promise<Record<DateKey, Holiday[]>> {
@@ -37,7 +37,7 @@ export async function loadNextHolidaysWorldwide(): Promise<Record<DateKey, Holid
         const response = await fetch(`${BASE_URL}/NextPublicHolidaysWorldwide`)
         if (!response.ok) return {}
         const data: HolidayResponse[] = await response.json()
-        const filtered = onlyPublicHolidays(data)
+        const filtered = onlyGlobalPublicHolidays(data)
         return groupHolidaysByDate(filtered)
     } catch {
         return {}
@@ -51,7 +51,7 @@ export async function loadHolidaysForCountry(year: number, countryCode: string):
         )
         if (!response.ok) return {}
         const data: HolidayResponse[] = await response.json()
-        const filtered = onlyPublicHolidays(data)
+        const filtered = onlyGlobalPublicHolidays(data)
         return groupHolidaysByDate(filtered)
     } catch {
         return {}
