@@ -3,7 +3,7 @@ import type { DateKey } from "@/domain/types/date.types"
 import { groupHolidaysByDate } from "@/utils/groupHolidaysByDate";
 
 const NAGER_URL = "https://date.nager.at/api/v3"
-const SERVER_URL = "http://localhost:3001"
+const SERVER_URL = import.meta.env.VITE_API_URL ?? ""
 
 export interface AvailableCountry {
     countryCode: string
