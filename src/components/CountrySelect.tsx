@@ -3,8 +3,10 @@ import styled from "@emotion/styled"
 import type { AvailableCountry } from "@/api/holidays"
 
 const NEAREST_LABEL = "Nearest holidays"
+const WORLDWIDE_LABEL = "Worldwide holidays"
 const TASKS_ONLY_LABEL = "Tasks only"
 export const TASKS_ONLY = "__tasks_only__"
+export const WORLDWIDE = "__worldwide__"
 
 interface Props {
     value: string | null
@@ -25,9 +27,11 @@ export function CountrySelect({
 
     const displayLabel = value === null
         ? NEAREST_LABEL
-        : value === TASKS_ONLY
-            ? TASKS_ONLY_LABEL
-            : options.find((c) => c.countryCode === value)?.name ?? value
+        : value === WORLDWIDE
+            ? WORLDWIDE_LABEL
+            : value === TASKS_ONLY
+                ? TASKS_ONLY_LABEL
+                : options.find((c) => c.countryCode === value)?.name ?? value
 
     const filteredOptions = useMemo(() => {
         const q = search.trim().toLowerCase()
@@ -78,6 +82,16 @@ export function CountrySelect({
                             }}
                         >
                             {NEAREST_LABEL}
+                        </Option>
+                        <Option
+                            $active={value === WORLDWIDE}
+                            onClick={() => {
+                                onChange(WORLDWIDE)
+                                setOpen(false)
+                                setSearch("")
+                            }}
+                        >
+                            {WORLDWIDE_LABEL}
                         </Option>
                         <Option
                             $active={value === TASKS_ONLY}

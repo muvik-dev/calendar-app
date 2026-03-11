@@ -2,7 +2,8 @@ import type { Holiday } from "@/domain/types/holiday.types"
 import type { DateKey } from "@/domain/types/date.types"
 import { groupHolidaysByDate } from "@/utils/groupHolidaysByDate";
 
-const BASE_URL = "https://date.nager.at/api/v3"
+const NAGER_URL = "https://date.nager.at/api/v3"
+const SERVER_URL = "http://localhost:3001"
 
 export interface AvailableCountry {
     countryCode: string
@@ -11,7 +12,7 @@ export interface AvailableCountry {
 
 export async function getAvailableCountries(): Promise<AvailableCountry[]> {
     try {
-        const response = await fetch(`${BASE_URL}/AvailableCountries`)
+        const response = await fetch(`${NAGER_URL}/AvailableCountries`)
         if (!response.ok) return []
         return await response.json()
     } catch {
@@ -34,7 +35,7 @@ function onlyGlobalPublicHolidays(list: HolidayResponse[]): Holiday[] {
 
 export async function loadNextHolidaysWorldwide(): Promise<Record<DateKey, Holiday[]>> {
     try {
-        const response = await fetch(`${BASE_URL}/NextPublicHolidaysWorldwide`)
+        const response = await fetch(`${NAGER_URL}/NextPublicHolidaysWorldwide`)
         if (!response.ok) return {}
         const data: HolidayResponse[] = await response.json()
         const filtered = onlyGlobalPublicHolidays(data)
@@ -44,10 +45,20 @@ export async function loadNextHolidaysWorldwide(): Promise<Record<DateKey, Holid
     }
 }
 
+export async function loadWorldwideHolidays(year: number): Promise<Record<DateKey, Holiday[]>> {
+    try {
+        const response = await fetch(`${SERVER_URL}/api/holidays/worldwide?year=${year}`)
+        if (!response.ok) return {}
+        return await response.json()
+    } catch {
+        return {}
+    }
+}
+
 export async function loadHolidaysForCountry(year: number, countryCode: string): Promise<Record<DateKey, Holiday[]>> {
     try {
         const response = await fetch(
-            `${BASE_URL}/PublicHolidays/${year}/${countryCode}`
+            `${NAGER_URL}/PublicHolidays/${year}/${countryCode}`
         )
         if (!response.ok) return {}
         const data: HolidayResponse[] = await response.json()

@@ -21,9 +21,9 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import type { DateKey } from "@/domain/types/date.types"
 import { DayTaskList } from "./DayTaskList"
 import type { Holiday } from "@/domain/types/holiday.types"
-import { getAvailableCountries, loadHolidaysForCountry, loadNextHolidaysWorldwide,} from "@/api/holidays"
+import { getAvailableCountries, loadHolidaysForCountry, loadNextHolidaysWorldwide, loadWorldwideHolidays } from "@/api/holidays"
 import type { AvailableCountry } from "@/api/holidays"
-import { CountrySelect, TASKS_ONLY } from "@/components/CountrySelect"
+import { CountrySelect, TASKS_ONLY, WORLDWIDE } from "@/components/CountrySelect"
 import { groupTasksByDate } from "@/utils/groupTasksByDate";
 
 function getTodayView() {
@@ -58,7 +58,7 @@ export function CalendarGrid() {
     const [holidaysByDate, setHolidaysByDate] = useState<
         Record<DateKey, Holiday[]>
     >({})
-    const [holidayCountry, setHolidayCountry] = useState<string | null>(null)
+    const [holidayCountry, setHolidayCountry] = useState<string | null>(WORLDWIDE)
     const [countries, setCountries] = useState<AvailableCountry[]>([])
     const [countriesLoading, setCountriesLoading] = useState(true)
     const countryYearCacheRef = useRef<Record<string, Record<DateKey, Holiday[]>>>({})
@@ -71,7 +71,7 @@ export function CalendarGrid() {
 
     useEffect(() => {
         if (holidayCountry === TASKS_ONLY) {
-            setHolidaysByDate({})
+            Promise.resolve({}).then(setHolidaysByDate)
             return
         }
         if (holidayCountry === null) {
@@ -80,15 +80,30 @@ export function CalendarGrid() {
                 .catch((e) => console.error("Error loading next holidays:", e))
             return
         }
+        if (holidayCountry === WORLDWIDE) {
+            const cacheKey = `worldwide-${viewYear}`
+            const cached = countryYearCacheRef.current[cacheKey]
+            if (cached != null) {
+                Promise.resolve(cached).then(setHolidaysByDate)
+                return
+            }
+            loadWorldwideHolidays(viewYear)
+                .then((byDate) => {
+                    countryYearCacheRef.current[cacheKey] = byDate
+                    setHolidaysByDate(byDate)
+                })
+                .catch((e) => console.error("Error loading worldwide holidays:", e))
+            return
+        }
         const cacheKey = `${viewYear}-${holidayCountry}`
-        const cache = countryYearCacheRef.current
-        if (cache[cacheKey] != null) {
-            setHolidaysByDate(cache[cacheKey])
+        const cached = countryYearCacheRef.current[cacheKey]
+        if (cached != null) {
+            Promise.resolve(cached).then(setHolidaysByDate)
             return
         }
         loadHolidaysForCountry(viewYear, holidayCountry)
             .then((byDate) => {
-                cache[cacheKey] = byDate
+                countryYearCacheRef.current[cacheKey] = byDate
                 setHolidaysByDate(byDate)
             })
             .catch((e) => console.error("Error loading country holidays:", e))
