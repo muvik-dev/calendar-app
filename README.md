@@ -2,6 +2,10 @@
 
 A calendar application with task management and worldwide public holiday display.
 
+## Live Demo
+
+🔗 https://calendar-app-rho-bice.vercel.app/
+
 ## Tech Stack
 
 **Frontend:** React, TypeScript, Emotion, Vite
