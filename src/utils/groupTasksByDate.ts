@@ -1,4 +1,4 @@
-import type {Task} from "../../lib/task-types.ts";
+import type { Task } from "@/domain/types/task.types"
 
 export function groupTasksByDate(tasks: Task[]) {
     const map = new Map<string, Task[]>()
